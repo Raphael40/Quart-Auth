@@ -1,7 +1,9 @@
 from secrets import compare_digest
 
 from quart import Quart, redirect, request, url_for
-from quart_auth import QuartAuth, AuthUser, login_required, login_required, login_user
+from quart_auth import (
+    QuartAuth, AuthUser, current_user, login_required, login_required, login_user, logout_user
+    )
 
 app = Quart(__name__)
 app.secret_key = "prEZVMOjCXcN1QP12eOAHw" # Store in .env
@@ -14,7 +16,7 @@ async def index():
 @app.get("/private")
 @login_required
 async def private():
-    return "Something sensitive"
+    return f"Something sensitive being viewed by {current_user.auth_id}"
 
 @app.route("/login", methods={"GET", "POST"})
 async def login():
@@ -31,3 +33,8 @@ async def login():
     <input type="submit" value="Login">
     </form>
     """
+
+@app.get("/logout")
+async def logout():
+    logout_user()
+    return redirect(url_for("index"))
